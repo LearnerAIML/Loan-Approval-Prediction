@@ -25,20 +25,27 @@ bank_asset_value = st.number_input("Bank Asset Value (₹)", min_value=0, value=
 education = 1 if education == "Graduate" else 0
 self_employed = 1 if self_employed == "Yes" else 0
 
-# Predict button
 if st.button("Predict Loan Status"):
-    input_data = pd.DataFrame([[no_of_dependents, education, self_employed,
-                                income_annum, loan_amount, loan_term, cibil_score,
-                                residential_assets_value, commercial_assets_value,
-                                luxury_assets_value, bank_asset_value]],
-                              columns=['no_of_dependents', 'education', 'self_employed',
-                                       'income_annum', 'loan_amount', 'loan_term', 'cibil_score',
-                                       'residential_assets_value', 'commercial_assets_value',
-                                       'luxury_assets_value', 'bank_asset_value'])
-    
-    result = model.predict(input_data)[0]
-    
-    if result == 1:
-        st.success("✅ Loan Approved!")
+    # Basic validation rules
+    if income_annum <= 0:
+        st.warning("⚠️ Annual income must be greater than 0!")
+    elif loan_amount > income_annum * 20:
+        st.warning("⚠️ Loan amount is too high compared to your income!")
+    elif cibil_score < 300:
+        st.warning("⚠️ CIBIL score is invalid!")
     else:
-        st.error("❌ Loan Rejected!")
+        input_data = pd.DataFrame([[no_of_dependents, education, self_employed,
+                                    income_annum, loan_amount, loan_term, cibil_score,
+                                    residential_assets_value, commercial_assets_value,
+                                    luxury_assets_value, bank_asset_value]],
+                                  columns=['no_of_dependents', 'education', 'self_employed',
+                                           'income_annum', 'loan_amount', 'loan_term', 'cibil_score',
+                                           'residential_assets_value', 'commercial_assets_value',
+                                           'luxury_assets_value', 'bank_asset_value'])
+        
+        result = model.predict(input_data)[0]
+        
+        if result == 1:
+            st.success("✅ Loan Approved!")
+        else:
+            st.error("❌ Loan Rejected!")
